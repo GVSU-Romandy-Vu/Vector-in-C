@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-//Try me!
+
 /**
  * lite_vector.{c,h}
  * Ira Woodring

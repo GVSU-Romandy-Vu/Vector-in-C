@@ -3,18 +3,38 @@
 #include <stdio.h>
 #include <string.h>
 
+/*
+It's an arrayList not a LinkedList
+lite_vector field variables:
+(unsigned long long) length: size of the lite_vector?
+(unsigned long long) max_capacity: used to determine if the vector should expand?
+(unsigned long long) type_size: useless, since it only holds pointers and all pointers have the same memory size, no parameter check of what element type is added?
+(void**) data: a pointer that holds a void pointer (void pointer is universal?) [Also the "dynamic" array?]
+
+realloc(): increase or decrease the size of the specified memory, moving it if necessary
+calloc(): has 2 parameter where 1 is the # of elements and the second is the bytes to be allocated for each element and initalize to 0.
+malloc(): allocates the specified bytes
+memcpy(dest, source, byte_amount): copies data from source to dest
+
+
+*/
+
+//type_size is useless, memory addresses are only entered which have the same no matter what
 lite_vector* lv_new_vec(size_t type_size){
 }
 
+//The clear() function use recursion?
 void lv_cleanup(lite_vector* vec){
 }
 
 size_t lv_get_length(lite_vector* vec){
 }
 
+//set all the element in array to null
 bool lv_clear(lite_vector* vec){
 }
 
+//search through array
 void* lv_get(lite_vector* vec, size_t index){
 }
 
@@ -28,6 +48,7 @@ void* lv_get(lite_vector* vec, size_t index){
  * fails.  If the resize cannot complete, the original vector
  * must remain unaffected.
  */
+//Most likely used by lv_append.
 static bool lv_resize(lite_vector* vec){
 }
 
