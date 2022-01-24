@@ -26,14 +26,14 @@ lite_vector* lv_new_vec(size_t type_size){
     //Create it in the heap instead of stack with malloc.
     lite_vector* vector = (lite_vector*) malloc(sizeof(lite_vector));
 
-    //Set length to 0 to keep track of # of elements in vector->data.
+    //Set length  to keep track of # of elements in vector->data.
     vector->length = 0;
 
     //Initally set max_capacity to 10, and used to check if length == max_capacity for updating.
     vector->max_capacity = 10;
 
     //Dynamically create the data (memory address array) in the heap, (will be change in size)
-    vector->data = (void**)calloc(14,sizeof(void*));
+    vector->data = (void**)calloc(10,sizeof(void*));
 
     return vector;
 }
@@ -51,13 +51,12 @@ void lv_cleanup(lite_vector* vec){
 }
 
 size_t lv_get_length(lite_vector* vec){
-    //Check if the lite_vector is created
-    if(vec != NULL){
-    return vec->length;
+    //Check if lite_vector has been created
+    if(vec == NULL){
+    return 0; //return 0 because of clang.
     }
     
-    //Else return NULL
-    return NULL;
+    return vec->length;
 }
 
 //reset
@@ -111,8 +110,10 @@ static bool lv_resize(lite_vector* vec){
         return false;
     }
     //give lite_vector's data more memory to hold 10 additional memory addresses.
-    realloc(vec->data, (sizeof(vec->data) + sizeof(void*)*10));
-    
+    void** replace = (void**)calloc(vec->length + 10, sizeof(void*));
+    memcpy(replace, vec->data, sizeof(void*)*vec->length);
+    free(vec->data);
+    vec->data = replace;
     //Update the max_capacity to check if the vec needs to be updated again.
     vec->max_capacity += 10;
     return true;
@@ -121,7 +122,7 @@ static bool lv_resize(lite_vector* vec){
 
 bool lv_append(lite_vector* vec, void* element){
     //Checks if vec is not null first
-    if(vec != NULL){
+    if(vec == NULL){
         return false;
     }
 
@@ -129,29 +130,18 @@ bool lv_append(lite_vector* vec, void* element){
     //Check if vec needs to resize, create a copy
     if(vec->length >= vec->max_capacity){
         //FIXME: Something could be wrong here.
-        lite_vector* copy;
-        void** copydata = (void**)calloc(vec->length, sizeof(void*));
-        memcpy(copy, vec, sizeof(vec));
-        memcpy(copydata, vec->data, sizeof(vec->data));
-        copy->data = copydata;
 
-        if(lv_resize(copy)){
-            copydata[vec->length - 1] = element;
-            vec->length++;
-            free(vec->data);
-            vec->data = copydata;
-            return true;
+        if(lv_resize(vec)){
+		//So it works?
         }
         else{
             return false;
         }
     }
-    //If resize is not needed, no need to check data, so add element to array.
-    else{
-        vec->data[vec->length -1] = element;
+        vec->data[vec->length] = element;
         vec->length++;
         return true;
-    }
+    
 
 
 }
