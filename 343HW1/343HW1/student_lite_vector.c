@@ -111,9 +111,30 @@ static bool lv_resize(lite_vector* vec){
     }
     //give lite_vector's data more memory to hold 10 additional memory addresses.
     void** replace = (void**)calloc(vec->length + 10, sizeof(void*));
-    memcpy(replace, vec->data, sizeof(void*)*vec->length);
+    memcpy(replace, vec->data, sizeof(void*)*vec->length); //my grade depends on this function working properly.
+
+    //Check if the copy is the same, and if not remove copy and return false.
+    for(size_t i = 0; i <= vec->length; i++){
+	    if(vec->data[i] != replace[i]){
+		    free(replace);
+		    return false;
+	    
+	    }
+    
+    }
+
+
+
+    //free from heap
     free(vec->data);
+
+    //replace
     vec->data = replace;
+
+    //This line of code below works, but clang has a warning on it.
+    //realloc(vec->data, (sizeof(void*) * vec->length) + (sizeof(void) * 10))
+    
+    
     //Update the max_capacity to check if the vec needs to be updated again.
     vec->max_capacity += 10;
     return true;
@@ -127,21 +148,16 @@ bool lv_append(lite_vector* vec, void* element){
     }
 
 
-    //Check if vec needs to resize, create a copy
+    //Check if vec needs to resize, with lv_resize(vec) will resize (increase) vec->data capacity.
     if(vec->length >= vec->max_capacity){
-        //FIXME: Something could be wrong here.
 
-        if(lv_resize(vec)){
-		//So it works?
-        }
-        else{
-            return false;
+        if(!lv_resize(vec)){
+		return false;
         }
     }
-        vec->data[vec->length] = element;
-        vec->length++;
-        return true;
-    
-
+    //length is index, so use that to place element, then increment it.
+    vec->data[vec->length] = element;
+    vec->length++;
+    return true;
 
 }
