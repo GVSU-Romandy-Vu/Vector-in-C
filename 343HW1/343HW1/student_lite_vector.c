@@ -20,22 +20,74 @@ memcpy(dest, source, byte_amount): copies data from source to dest
 */
 
 //type_size is useless, memory addresses are only entered which have the same no matter what
+//Acts like a "constructor"
+
 lite_vector* lv_new_vec(size_t type_size){
+    //Create it in the heap instead of stack with malloc.
+    lite_vector* vector = (lite_vector*) malloc(sizeof(lite_vector));
+
+    //Set length to 0 to keep track of # of elements in vector->data.
+    vector->length = 0;
+
+    //Initally set max_capacity to 10, and used to check if length == max_capacity for updating.
+    vector->max_capacity = 10;
+
+    //Dynamically create the data (memory address array) in the heap, (will be change in size)
+    vector->data = (void**)calloc(14,sizeof(void*));
+
+    return vector;
 }
 
 //The clear() function use recursion?
+
+
 void lv_cleanup(lite_vector* vec){
+    //Check if the lite_vector is created
+    if(vec != NULL){
+        //free data first before freeing vec
+        free(vec->data);
+        free(vec);
+    }
 }
 
 size_t lv_get_length(lite_vector* vec){
+    //Check if the lite_vector is created
+    if(vec != NULL){
+    return vec->length;
+    }
+    
+    //Else return NULL
+    return NULL;
 }
 
-//set all the element in array to null
+//reset
+
+
 bool lv_clear(lite_vector* vec){
+    //Check if vec is null (doesn't need to be cleared)
+    if(vec == NULL){
+        return false;
+    }
+    
+    //Restarting to default state == creating lite_vector (i.e. using constructor)
+    //remove current vec data
+    lv_cleanup(vec);
+    vec = lv_new_vec(1);
+    return true;
 }
 
 //search through array
 void* lv_get(lite_vector* vec, size_t index){
+    
+    //Check if lite_vector has been created to avoid errors
+    if(vec == NULL){
+        return NULL;
+    }
+    //Check if index is "out of bounds"
+    if(index < (size_t)0 || index > vec->length){
+        return NULL;
+    }
+    return vec->data[index];
 }
 
 /**
@@ -48,9 +100,58 @@ void* lv_get(lite_vector* vec, size_t index){
  * fails.  If the resize cannot complete, the original vector
  * must remain unaffected.
  */
-//Most likely used by lv_append.
 static bool lv_resize(lite_vector* vec){
+    //Not checking if lite_vector is created, because it is checked in lv_append (hopefully)
+    
+
+    /*+10 takes the additional elements to be added to the array. 
+    Statement should be true if vec->max + 10 > 18,446,744,073,709,551,614 (max size for size_t) leading
+    to a negative. Therefore any max_capacity for any lite vector is 18,446,744,073,709,551,610*/
+    if(vec->max_capacity + 10 < vec->max_capacity){
+        return false;
+    }
+    //give lite_vector's data more memory to hold 10 additional memory addresses.
+    realloc(vec->data, (sizeof(vec->data) + sizeof(void*)*10));
+    
+    //Update the max_capacity to check if the vec needs to be updated again.
+    vec->max_capacity += 10;
+    return true;
+
 }
 
 bool lv_append(lite_vector* vec, void* element){
+    //Checks if vec is not null first
+    if(vec != NULL){
+        return false;
+    }
+
+
+    //Check if vec needs to resize, create a copy
+    if(vec->length >= vec->max_capacity){
+        //FIXME: Something could be wrong here.
+        lite_vector* copy;
+        void** copydata = (void**)calloc(vec->length, sizeof(void*));
+        memcpy(copy, vec, sizeof(vec));
+        memcpy(copydata, vec->data, sizeof(vec->data));
+        copy->data = copydata;
+
+        if(lv_resize(copy)){
+            copydata[vec->length - 1] = element;
+            vec->length++;
+            free(vec->data);
+            vec->data = copydata;
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+    //If resize is not needed, no need to check data, so add element to array.
+    else{
+        vec->data[vec->length -1] = element;
+        vec->length++;
+        return true;
+    }
+
+
 }
