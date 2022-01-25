@@ -37,6 +37,7 @@ void test_add(void){
 	lv_append(lv, "says ");
 	lv_append(lv, "hi!");
 	TEST_CHECK( lv_get_length(lv) == 4 );
+	lv_cleanup(lv);
 }
 
 void test_get(void){
@@ -51,6 +52,7 @@ void test_get(void){
 	TEST_CHECK( !strcmp(lv_get(lv, 2), "says "));
 	TEST_CHECK( !strcmp(lv_get(lv, 3), "hi!"));
 	TEST_CHECK( strcmp(lv_get(lv, 0), "Mr. \n"));
+	lv_cleanup(lv);
 }
 
 void test_remove(void){
