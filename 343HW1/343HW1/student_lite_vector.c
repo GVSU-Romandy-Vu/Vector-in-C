@@ -3,20 +3,28 @@
 #include <stdio.h>
 #include <string.h>
 
-/*
-It's an arrayList
+/**************************************************************************************************
+It's an arrayList that holds memory addresses.
+
+
 lite_vector field variables:
 (unsigned long long) length: size of the lite_vector, used to keep track of "data" size.
 (unsigned long long) max_capacity: used to determine if the vector should expand
 (unsigned long long) type_size: useless, since it only holds pointers and all pointers have the same memory size?
 (void**) data: a pointer that holds a void pointer (void pointer is universal?) [Also the "dynamic" array?]
 
+Useful functions from documentation:
 realloc(): increase or decrease the size of the specified memory, moving it if necessary
 calloc(): has 2 parameter where 1 is the # of elements and the second is the bytes to be allocated for each element and initalize to 0.
 malloc(): allocates the specified bytes
 memcpy(dest, source, byte_amount): copies data from source to dest
 
-*/
+
+
+@authors Romandy Vu
+@version Jan 26, 2022
+
+**************************************************************************************************/
 
 
 /*****************************************************************
@@ -29,7 +37,7 @@ memcpy(dest, source, byte_amount): copies data from source to dest
  ****************************************************************/
 lite_vector* lv_new_vec(size_t type_size){
     //Create it in the heap instead of stack with malloc.
-    lite_vector* vector = (lite_vector*) malloc(sizeof(lite_vector));
+    lite_vector* vector =  malloc(sizeof(lite_vector));
 
     //Will be as an index to add elements to data, and checking data needs expanding.
     vector->length = 0;
@@ -42,7 +50,7 @@ lite_vector* lv_new_vec(size_t type_size){
      * Created in the heap as more memory is needed due to resizing
      * 
      */
-    vector->data = (void**)calloc(13,sizeof(void*));
+    vector->data = calloc(13,sizeof(void*));
 
     return vector;
 }
@@ -97,7 +105,7 @@ bool lv_clear(lite_vector* vec){
     
     //Free data, dynamically allocate memory to it, and reset length and max_capacity
     free(vec->data);
-    vec->data = (void**)calloc(13, sizeof(void*));
+    vec->data = calloc(13, sizeof(void*));
     vec->max_capacity = 13;
     vec->length = 0;
     //DON'T USE lv_cleanup() and lv_new_vec(); it creates memory leaks.
@@ -121,7 +129,7 @@ void* lv_get(lite_vector* vec, size_t index){
         return NULL;
     }
     //Check if index is "out of bounds"
-    if(index < (size_t)0 || index > vec->length){
+    if(index < 0 || index > vec->length){
         return NULL;
     }
     return vec->data[index];
@@ -156,7 +164,7 @@ static bool lv_resize(lite_vector* vec){
         return false;
     }
     //give lite_vector's data more memory to hold 10 additional memory addresses.
-    void** replace = (void**)calloc(vec->length + 10, sizeof(void*));
+    void** replace = calloc(vec->length + 10, sizeof(void*));
     memcpy(replace, vec->data, sizeof(void*)*vec->length); //my grade depends on this function working properly.
 
     //Check if the copy is the same, and if not remove copy and return false.
@@ -175,8 +183,8 @@ static bool lv_resize(lite_vector* vec){
     //transfer the copy with additional memory space.
     vec->data = replace;
 
-    //This line of code below works, but clang has a warning on it.
-    //realloc(vec->data, (sizeof(void*) * vec->length) + (sizeof(void) * 10))
+    //This line of code below works, but clang has a warning on it.Update: forgot the * for void in sizeof, (still not using it)
+    //realloc(vec->data, (sizeof(void*) * vec->length) + (sizeof(void*) * 10))
     
     //Update the max_capacity to check if the vec needs to be updated again.
     vec->max_capacity += 10;
