@@ -13,12 +13,6 @@ lite_vector field variables:
 (unsigned long long) type_size: useless, since it only holds pointers and all pointers have the same memory size?
 (void**) data: a pointer that holds pointers [the "dynamic" array]
 
-Useful functions from documentation:
-realloc(): increase or decrease the size of the specified memory, moving it if necessary
-calloc(): has 2 parameter where 1 is the # of elements and the second is the bytes to be allocated for each element and initalize to 0.
-malloc(): allocates the specified bytes
-memcpy(dest, source, byte_amount): copies data from source to dest
-
 
 
 @authors Romandy Vu
@@ -50,7 +44,7 @@ lite_vector* lv_new_vec(size_t type_size){
      * Created in the heap as more memory is needed due to resizing
      * 
      */
-    vector->data = calloc(13,sizeof(void*));
+    vector->data = malloc(13*sizeof(void*));
 
     return vector;
 }
@@ -82,7 +76,7 @@ void lv_cleanup(lite_vector* vec){
 size_t lv_get_length(lite_vector* vec){
     //Check if lite_vector has been created
     if(vec == NULL){
-    return 0; //return 0 because of clang.
+    return 0;
     }
     
     return vec->length;
@@ -106,7 +100,7 @@ bool lv_clear(lite_vector* vec){
     
     //Free data, dynamically allocate memory to it, and reset length and max_capacity
     free(vec->data);
-    vec->data = calloc(13, sizeof(void*));
+    vec->data = malloc(13* sizeof(void*));
     vec->max_capacity = 13;
     vec->length = 0;
     //DON'T USE lv_cleanup() and lv_new_vec(); it creates memory leaks.
@@ -130,7 +124,7 @@ void* lv_get(lite_vector* vec, size_t index){
         return NULL;
     }
     //Check if index is "out of bounds"
-    if(index < 0 || index > vec->length){
+    if(index < 0 || index >= vec->length){
         return NULL;
     }
     return vec->data[index];
@@ -165,11 +159,11 @@ static bool lv_resize(lite_vector* vec){
         return false;
     }
     //give lite_vector's data more memory to hold 10 additional memory addresses.
-    void** replace = calloc(vec->length + 10, sizeof(void*));
+    void** replace = malloc((vec->length + 10)*sizeof(void*));
     memcpy(replace, vec->data, sizeof(void*)*vec->length); //my grade depends on this function working properly.
 
     //Check if the copy is the same, and if not remove copy and return false.
-    for(size_t i = 0; i <= vec->length; i++){
+    for(size_t i = 0; i < vec->length; i++){
 	    if(vec->data[i] != replace[i]){
 		    free(replace);
 		    return false;
