@@ -178,8 +178,6 @@ static bool lv_resize(lite_vector* vec){
     //transfer the copy with additional memory space.
     vec->data = replace;
 
-    //This line of code below works, but clang has a warning on it.Update: forgot the * for void in sizeof, (still not using it)
-    //realloc(vec->data, (sizeof(void*) * vec->length) + (sizeof(void*) * 10))
     
     //Update the max_capacity to check if the vec needs to be updated again.
     vec->max_capacity += 10;
