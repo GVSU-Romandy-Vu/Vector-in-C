@@ -11,7 +11,7 @@ lite_vector field variables:
 (unsigned long long) length: size of the lite_vector, used to keep track of "data" size.
 (unsigned long long) max_capacity: used to determine if the vector should expand
 (unsigned long long) type_size: useless, since it only holds pointers and all pointers have the same memory size?
-(void**) data: a pointer that holds a void pointer (void pointer is universal?) [Also the "dynamic" array?]
+(void**) data: a pointer that holds pointers [the "dynamic" array]
 
 Useful functions from documentation:
 realloc(): increase or decrease the size of the specified memory, moving it if necessary
@@ -29,7 +29,7 @@ memcpy(dest, source, byte_amount): copies data from source to dest
 
 /*****************************************************************
  *
- *Acts like "constuctor"
+ *Acts like "constuctor" that creates a lite_vector for a lite_vector pointer.
  *Creates a pointer that holds a lite_vector
  *
  * @param type_size size of the type_size in bits (doesn't matter though).
@@ -46,7 +46,7 @@ lite_vector* lv_new_vec(size_t type_size){
      */
     vector->max_capacity = 13;
 
-    /*Treat void** data as void* data[] (An array that holds pointers)
+    /*Treat void** data like void* data[] (An array that holds pointers)
      * Created in the heap as more memory is needed due to resizing
      * 
      */
@@ -95,7 +95,8 @@ size_t lv_get_length(lite_vector* vec){
  *length = 0, no elements in data).
  *
  * @param vec The lite_vector pointer whose lite_vector is being cleared.
- * @return A new lite_vector for the lite_vector pointer.
+ * @return true if the lite_vector of a lite_vector pointer is restored to it's initated state,
+ * false if vector is NULL
  ********************************************************************/
 bool lv_clear(lite_vector* vec){
     //Check if vec is null (doesn't need to be cleared)
@@ -192,6 +193,15 @@ static bool lv_resize(lite_vector* vec){
 
 }
 
+/********************************************************************************************
+ *
+ * Appends the pointer of an element to a given lite_vector.
+ *
+ * @param element the pointer of the element that is being stored into the vector.
+ * @param vec the vector that will be storing the element's address
+ * @return true if the element was able to be appended to the given lite_vector, false otherwise
+ * due to a NULL vector or the vector reached its max capacity.
+ ********************************************************************************************/
 bool lv_append(lite_vector* vec, void* element){
     //Checks if vec is not null first
     if(vec == NULL){
